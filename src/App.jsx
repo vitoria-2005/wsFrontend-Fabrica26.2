@@ -1,51 +1,43 @@
 import { useEffect, useState } from 'react';
 import { chamarApi } from './services/api';
+import { Header } from './components/Header';
+import { Footer } from './components/Footer';
+import { HeroCard } from './components/HeroCard';
+import { RoleFilter } from './components/RoleFilter';
 
 function App() {
   const [herois, setHerois] = useState([]);
 
+  const [filtroRole, setFiltroRole] = useState('todos');
+
   useEffect(() => {
     async function carregarHerois() {
-      const dados = await chamarApi();
-      if (dados) {
-        setHerois(dados);
-      }
+      const dados = await chamarApi(filtroRole);
+      if (dados) setHerois(dados);
     }
     carregarHerois();
-  }, []);
+  }, [filtroRole]);
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
-      <h1>Overwatch Heroes</h1>
-      <p>Lista carregada dinamicamente da API:</p>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <Header />
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px', marginTop: '20px' }}>
-        {herois.map((heroi) => (
-          <div 
-            key={heroi.key} 
-            style={{ 
-              border: '1px solid #ddd', 
-              borderRadius: '8px', 
-              padding: '16px', 
-              textAlign: 'center',
-              backgroundColor: '#1e1e1e',
-              color: '#fff'
-            }}
-          >
-            {heroi.portrait && (
-              <img 
-                src={heroi.portrait} 
-                alt={heroi.name} 
-                style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover' }} 
-              />
-            )}
-            <h3>{heroi.name}</h3>
-            <p style={{ color: '#aaa', textTransform: 'capitalize' }}>
-              <strong>Função:</strong> {heroi.role}
-            </p>
-          </div>
-        ))}
-      </div>
+      <main className="container" style={{ flex: 1 }}>
+        
+        <RoleFilter filtroRole={filtroRole} setFiltroRole={setFiltroRole} />
+
+        <p className="hero-count-info">
+          Exibindo <span>{herois.length}</span> herói(s)
+        </p>
+
+        <div className="heroes-grid">
+          {herois.map((heroi) => (
+            <HeroCard key={heroi.key} heroi={heroi} />
+          ))}
+        </div>
+      </main>
+
+      <Footer />
     </div>
   );
 }
